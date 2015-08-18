@@ -24,7 +24,8 @@ public class Scanner {
     private Set<String> inDirRegExpList = new HashSet<String>();
 
     private long totalCount = 0;
-    private PrintStream printStream;
+    private Printer printer;
+    private volatile boolean shouldStop = false;
 
     public Scanner() {
         //default filter
@@ -44,7 +45,7 @@ public class Scanner {
     }
 
     private void scan(ScanEntry parent, ScanEntry entry) throws Exception {
-        if (!filter(entry)) {
+        if (shouldStop || !filter(entry)) {
             return;
         }
         totalCount++;
@@ -194,7 +195,7 @@ public class Scanner {
             }
             queue.push(line);
             if (line.contains(s)) {
-                System.out.println(String.format("[%5d]%s", index + 1,
+                getPrinter().println(String.format("[%5d]%s", index + 1,
                         entry.getPath()));
                 findMatched = true;
             }
@@ -202,7 +203,7 @@ public class Scanner {
                 bufferOffset--;
                 if (bufferOffset < 0) {
                     for (String temp : queue) {
-                        System.out.println(String.format("%6d %s", index++ - displayLineNumber + 2,
+                        getPrinter().println(String.format("%6d %s", index++ - displayLineNumber + 2,
                                 "\t" + (temp == null ? null : temp.trim())));
                     }
                     return true;
@@ -238,9 +239,9 @@ public class Scanner {
         }
         boolean finalResult = isAllTrue(result);
         if (finalResult) {
-            getPrintStream().println(entry.getPath());
+            getPrinter().println(entry.getPath());
             for (String s1 : check) {
-                getPrintStream().println(s1);
+                getPrinter().println(s1);
             }
         }
         return finalResult;
@@ -323,14 +324,22 @@ public class Scanner {
 
     }
 
-    public PrintStream getPrintStream() {
-        if (printStream == null) {
-            printStream = System.out;
+    public Printer getPrinter() {
+        if (printer == null) {
+            printer = new Printer(){
+                public void println(String msg) {
+                    System.out.println(msg);
+                }
+            };
         }
-        return printStream;
+        return printer;
     }
 
-    public void setPrintStream(PrintStream printStream) {
-        this.printStream = printStream;
+    public void setPrinter(Printer printer) {
+        this.printer = printer;
+    }
+
+    public void stopScan() {
+        shouldStop = true;
     }
 }

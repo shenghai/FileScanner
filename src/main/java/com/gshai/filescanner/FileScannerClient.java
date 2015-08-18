@@ -15,7 +15,7 @@ public class FileScannerClient {
             @Override
             public void testMatch(ScanEntry entry) throws Exception {
                 if (entry.getName().equals(fileName)) {
-                    getPrintStream().println(entry.getPath());
+                    getPrinter().println(entry.getPath());
                 }
             }
         };
@@ -26,24 +26,23 @@ public class FileScannerClient {
         printStream.println("Scanner takes " + (end - start) + " ms to search " + scanner.getTotalCount() + " files");
     }
 
-    public static void findFilesByContext(String beginPath, final String context, final PrintStream printStream) {
-        findFilesByContext(beginPath, context, printStream, null);
+    public static void findFilesByContext(String beginPath, final String context, final Printer printer) {
+        findFilesByContext(beginPath, context, printer, null);
     }
-
-    public static void findFilesByContext(String beginPath, final String context, final PrintStream printStream, String nameFilter) {
+    public static void findFilesByContext(String beginPath, final String context, final Printer printer, String nameFilter) {
         Scanner scanner = new Scanner() {
             @Override
             public void testMatch(ScanEntry entry) throws Exception {
                 if (checkMultiLineEqual(entry, context)) {
-                    getPrintStream().println(entry.getPath());
+                    getPrinter().println(entry.getPath());
                 }
             }
         };
         scanner.addNameFilter(nameFilter);
-        scanner.setPrintStream(printStream);
+        scanner.setPrinter(printer);
         long start = System.currentTimeMillis();
         scanner.scan(beginPath);
         long end = System.currentTimeMillis();
-        printStream.println("Scanner takes " + (end - start) + " ms to search " + scanner.getTotalCount() + " files");
+        printer.println("Scanner takes " + (end - start) + " ms to search " + scanner.getTotalCount() + " files");
     }
 }

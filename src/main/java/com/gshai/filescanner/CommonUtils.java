@@ -1,9 +1,18 @@
 package com.gshai.filescanner;
 
 import java.io.File;
+import java.io.PrintStream;
 import java.util.Arrays;
 
 public class CommonUtils {
+    public static Printer printStreamToPrinter(final PrintStream printStream) {
+        return new Printer() {
+            private PrintStream ps = printStream;
+            public void println(String msg) {
+                ps.println(msg);
+            }
+        };
+    }
     public static boolean isZipFile(String filePath) {
         if (filePath == null) {
             return false;
